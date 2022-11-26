@@ -26,8 +26,8 @@ local config = {
   },
 
   -- Set colorscheme to use
-  colorscheme = "catppuccin",
-  -- colorscheme = "default_theme",
+  -- colorscheme = "catppuccin",
+  colorscheme = "default_theme",
 
   -- Add highlight groups in any theme
   highlights = {
@@ -80,17 +80,17 @@ local config = {
 
   -- Set dashboard header
   header = {
-    " █████  ███████ ████████ ██████   ██████",
-    "██   ██ ██         ██    ██   ██ ██    ██",
-    "███████ ███████    ██    ██████  ██    ██",
-    "██   ██      ██    ██    ██   ██ ██    ██",
-    "██   ██ ███████    ██    ██   ██  ██████",
-    " ",
-    "    ███    ██ ██    ██ ██ ███    ███",
-    "    ████   ██ ██    ██ ██ ████  ████",
-    "    ██ ██  ██ ██    ██ ██ ██ ████ ██",
-    "    ██  ██ ██  ██  ██  ██ ██  ██  ██",
-    "    ██   ████   ████   ██ ██      ██",
+    -- " █████  ███████ ████████ ██████   ██████",
+    -- "██   ██ ██         ██    ██   ██ ██    ██",
+    -- "███████ ███████    ██    ██████  ██    ██",
+    -- "██   ██      ██    ██    ██   ██ ██    ██",
+    -- "██   ██ ███████    ██    ██   ██  ██████",
+    -- " ",
+    -- "    ███    ██ ██    ██ ██ ███    ███",
+    -- "    ████   ██ ██    ██ ██ ████  ████",
+    -- "    ██ ██  ██ ██    ██ ██ ██ ████ ██",
+    -- "    ██  ██ ██  ██  ██  ██ ██  ██  ██",
+    -- "    ██   ████   ████   ██ ██      ██",
   },
 
   -- Default theme configuration
@@ -246,12 +246,16 @@ local config = {
       },
       -- find references
       ["<leader>r"] = {
-        function() require("telescope.builtin").lsp_references() end,
+        function() require("telescope.builtin").lsp_references { show_line = false } end,
         desc = "Search references",
       },
 
-      -- alias Ctrl-P to telescope files
+      -- alias Ctrl-p to telescope files, Ctrl-P to telescope find all files
       ["<C-p>"] = { function() require("telescope.builtin").find_files() end, desc = "Search files" },
+      ["<C-ü>"] = {
+        function() require("telescope.builtin").find_files { hidden = true, no_ignore = true } end,
+        desc = "Search all files",
+      },
 
       -- open nerdtree force-focused on current file
       ["<leader>E"] = {
@@ -321,7 +325,7 @@ local config = {
       },
     },
     ["neo-tree"] = function(config)
-      config.filesystem.filtered_items.visible = true
+      config.filesystem.filtered_items = { visible = true }
       -- select parent directory
       config.window.mappings.h = function(state)
         local node = state.tree:get_node()
@@ -376,7 +380,7 @@ local config = {
       -- select packages that are installed
       -- note: uses source names not mason names. see this table for the mapping:
       -- https://github.com/jayp0521/mason-null-ls.nvim#available-null-ls-sources
-      ensure_installed = { "prettierd", "stylua", "rustfmt" },
+      ensure_installed = { "prettier", "stylua", "rustfmt" },
     },
   },
 
@@ -428,6 +432,14 @@ local config = {
   -- augroups/autocommands and custom filetypes also this just pure lua so
   -- anything that doesn't fit in the normal config locations above can go here
   polish = function()
+    local cmd = vim.api.nvim_create_autocmd
+    local augroup = vim.api.nvim_create_augroup
+    cmd("FileType", {
+      desc = "Close quickfix with esc",
+      group = augroup("unlist_quickfist", { clear = true }),
+      pattern = "qf",
+      command =  "normal <esc> :quit<cr>"
+    })
     -- vim.api.nvim_create_autocmd({
     --   {"BufReadPost", "FileReadPost"}, {
     --      comand =  "normal zR"
